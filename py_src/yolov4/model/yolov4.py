@@ -95,7 +95,6 @@ class YOLOv4(Model):
         """
         x = self.csp_darknet53(x)
         x = self.panet(x)
-        x = self.yolov3_head(x)
         return x
 
 
@@ -125,5 +124,4 @@ class YOLOv4Tiny(Model):
     def call(self, x):
         x = self.csp_darknet53_tiny(x)
         x = self.panet_tiny(x)
-        x = self.yolov3_head_tiny(x)
         return x
