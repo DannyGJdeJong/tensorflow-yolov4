@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import tensorflow
 from tensorflow.keras import layers, Model
 
 from .common import YOLOConv2D
@@ -302,7 +303,7 @@ class PANet(Model):
 
 class PANetTiny(Model):
     def __init__(
-        self, num_classes, activation: str = "leaky", kernel_regularizer=None
+        self, num_classes, activation: str = "mish", kernel_regularizer=None
     ):
         super(PANetTiny, self).__init__(name="PANetTiny")
         self.conv15 = YOLOConv2D(
@@ -348,18 +349,74 @@ class PANetTiny(Model):
         )
 
     def call(self, x):
-        route1, route2 = x
+        route1, route2 = x #(None,32,32,256),(None,16,16,512)
 
-        x1 = self.conv15(route2)
+        x1 = self.conv15(route2) #(None,16, 16, 256)
+        x2 = self.conv16(x1) #(None,16, 16, 512)
 
-        x2 = self.conv16(x1)
-        pred_l = self.conv17(x2)
+        pred_l = self.conv17(x2) #(None, 16, 16, 48)
 
-        x1 = self.conv18(x1)
-        x1 = self.upSampling18(x1)
-        x1 = self.concat13_18([x1, route1])
+        x1 = self.conv18(x1) #(None, 16, 16, 128)
+        x1 = self.upSampling18(x1) #(None, 32, 32, 128)
+        x1 = self.concat13_18([x1, route1]) #(None, 32, 32, 384)
 
-        x1 = self.conv19(x1)
-        pred_m = self.conv20(x1)
+        x1 = self.conv19(x1) #(None, 32, 32, 256)
 
-        return pred_m, pred_l
+        pred_m = self.conv20(x1) #(None, 32, 32, 48)
+
+        return pred_m, pred_l #(None, 32, 32, 48), (None, 16, 16, 48)
+
+
+class BiFPNTiny(Model):
+    def __init__(
+        self, num_classes, activation: str = "mish", kernel_regularizer=None
+    ):
+        super(BiFPNTiny, self).__init__(name="BiFPNTiny")
+        self.conv15 = YOLOConv2D(
+            filters=512,
+            kernel_size=3,
+            activation=activation,
+            kernel_regularizer=kernel_regularizer,
+        )
+
+        self.conv16 = YOLOConv2D(
+            filters=3 * (num_classes + 5),
+            kernel_size=1,
+            activation=None,
+            kernel_regularizer=kernel_regularizer,
+        )
+
+        self.upSampling18 = layers.UpSampling2D(interpolation="bilinear")
+        self.concat13_18 = layers.Concatenate(axis=-1)
+
+        self.conv17 = YOLOConv2D(
+            filters=256,
+            kernel_size=3,
+            activation=activation,
+            kernel_regularizer=kernel_regularizer,
+        )
+        self.conv18 = YOLOConv2D(
+            filters=3 * (num_classes + 5),
+            kernel_size=1,
+            activation=None,
+            kernel_regularizer=kernel_regularizer,
+        )
+
+    def call(self, x):
+        route1, route2 = x #(None,32,32,256),(None,16,16,512)
+
+        x1 = self.conv15(route2) #(None,16, 16, 512)
+
+        pred_l = self.conv16(x1) #(None, 16, 16, 48)
+
+        x2 = self.upSampling18(route2) #(None,32, 32, 512)
+
+        x1 = self.concat13_18([x2, route1]) #(None, 32, 32, 768)
+
+        x1 = self.conv17(x1) #(None, 32, 32, 256)
+
+        x1 = self.concat13_18([x1, route1]) #(None, 32, 32, 512)
+
+        pred_m = self.conv18(x1) #(None, 32, 32, 48)
+
+        return pred_m, pred_l #(None, 32, 32, 48), (None, 16, 16, 48)

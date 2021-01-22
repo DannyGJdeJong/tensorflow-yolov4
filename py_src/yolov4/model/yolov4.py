@@ -25,7 +25,7 @@ from tensorflow.keras import Model
 
 from .backbone import CSPDarknet53, CSPDarknet53Tiny
 from .head import YOLOv3Head, YOLOv3HeadTiny
-from .neck import PANet, PANetTiny
+from .neck import PANet, PANetTiny, BiFPNTiny
 
 
 class YOLOv4(Model):
@@ -113,8 +113,12 @@ class YOLOv4Tiny(Model):
             activation=activation,
             kernel_regularizer=kernel_regularizer,
         )
-        self.panet_tiny = PANetTiny(
-            num_classes=num_classes,
+        # self.panet_tiny = PANetTiny(
+        #     num_classes=num_classes,
+        #     activation=activation,
+        #     kernel_regularizer=kernel_regularizer,
+        # )
+        self.bifpn_tiny = BiFPNTiny(num_classes=num_classes,
             activation=activation,
             kernel_regularizer=kernel_regularizer,
         )
@@ -124,6 +128,7 @@ class YOLOv4Tiny(Model):
 
     def call(self, x):
         x = self.csp_darknet53_tiny(x)
-        x = self.panet_tiny(x)
+        #x = self.panet_tiny(x)
+        x = self.bifpn_tiny(x)
         x = self.yolov3_head_tiny(x)
         return x
