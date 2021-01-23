@@ -178,6 +178,16 @@ def panet_tiny_load_weights(panet_tiny, fd):
 
     return True
 
+def bifpn_tiny_load_weights(panet_tiny, fd):
+    for i in range(15, 21):
+        layer_name = "yolo_conv2d_%d" % i
+
+        yolo_conv2d = bifpn_tiny.get_layer(layer_name)
+        if not yolo_conv2d_load_weights(yolo_conv2d, fd):
+            return False
+
+    return True
+
 
 def yolov4_load_weights(yolov4, fd):
     csp_darknet53 = yolov4.get_layer("CSPDarknet53")
@@ -199,9 +209,9 @@ def yolov4_tiny_load_weignts(yolov4_tiny, fd):
     if not csp_darknet53_tiny_load_weights(csp_darknet53_tiny, fd):
         return False
 
-    panet_tiny = yolov4_tiny.get_layer("PANetTiny")
+    bifpn_tiny = yolov4_tiny.get_layer("BiFPNTiny")
 
-    if not panet_tiny_load_weights(panet_tiny, fd):
+    if not bifpn_tiny_load_weights(bifpn_tiny, fd):
         return False
 
     return True

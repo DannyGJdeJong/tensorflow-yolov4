@@ -38,7 +38,7 @@ def load_weights(model, weights_file, tiny: bool = False):
             ret = yolov4_tiny_load_weignts(model, fd)
         else:
             ret = yolov4_load_weights(model, fd)
-
+        #print(len(fd.read()))
         if len(fd.read()) != 0:
             raise ValueError("Model and weights file do not match.")
 
@@ -109,7 +109,7 @@ def csp_darknet53_tiny_load_weights(csp_darknet53_tiny, fd):
 
     return True
 
-def bifpn_tiny_load_weights(panet_tiny, fd):
+def bifpn_tiny_load_weights(bifpn_tiny, fd):
     for i in range(18, 22):
         layer_name = "yolo_conv2d_%d" % i
 
