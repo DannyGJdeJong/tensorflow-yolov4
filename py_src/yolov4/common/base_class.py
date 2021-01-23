@@ -41,10 +41,7 @@ class BaseClass:
 
         # properties
         if tiny:
-            self.anchors = [
-                [[23, 27], [37, 58], [81, 82]],
-                [[81, 82], [135, 169], [344, 319]],
-            ]
+            self.anchors = [[[23,27],[37,58], [81,82]],[[81,82], [135,160],[344,319]],[[142,110], [192,243],[459,401]],]
         else:
             self.anchors = [
                 [[12, 16], [19, 36], [40, 28]],
@@ -82,7 +79,7 @@ class BaseClass:
             self._anchors = anchors
 
         if self.tiny:
-            self._anchors = self._anchors.astype(np.float32).reshape(2, 3, 2)
+            self._anchors = self._anchors.astype(np.float32).reshape(3, 3, 2)
         else:
             self._anchors = self._anchors.astype(np.float32).reshape(3, 3, 2)
 
