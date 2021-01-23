@@ -95,59 +95,12 @@ def yolo_conv2d_load_weights(yolo_conv2d, fd):
     else:
         conv.set_weights([conv_weights, conv_bias])
 
-    return True
-
-
-def res_block_load_weights(model, fd):
-    for i in range(model.iteration):
-        _res_block = model.sequential.get_layer(index=i)
-        if not yolo_conv2d_load_weights(_res_block.get_layer(index=0), fd):
-            return False
-        if not yolo_conv2d_load_weights(_res_block.get_layer(index=1), fd):
-            return False
-
-    return True
-
-
-def csp_res_net_load_weights(model, fd):
-    for i in range(3):
-        if not yolo_conv2d_load_weights(model.get_layer(index=i), fd):
-            return False
-    if not res_block_load_weights(model.get_layer(index=3), fd):
-        return False
-    for i in (4, 6):
-        if not yolo_conv2d_load_weights(model.get_layer(index=i), fd):
-            return False
-
-    return True
-
-
-def csp_darknet53_load_weights(csp_darknet53, fd):
-    if not yolo_conv2d_load_weights(csp_darknet53.get_layer(index=0), fd):
-        return False
-
-    for i in range(1, 1 + 5):
-        if not csp_res_net_load_weights(csp_darknet53.get_layer(index=i), fd):
-            return False
-
-    for i in range(6, 6 + 3):
-        if not yolo_conv2d_load_weights(csp_darknet53.get_layer(index=i), fd):
-            return False
-
-    # index 9 is SPP
-
-    for i in range(10, 10 + 3):
-        if not yolo_conv2d_load_weights(csp_darknet53.get_layer(index=i), fd):
-            return False
-
-    return True
-
 
 def csp_darknet53_tiny_load_weights(csp_darknet53_tiny, fd):
     if not yolo_conv2d_load_weights(csp_darknet53_tiny.get_layer(index=0), fd):
         return False
 
-    for i in range(1, 15):
+    for i in range(1, 18):
         layer_name = "yolo_conv2d_%d" % i
 
         yolo_conv2d = csp_darknet53_tiny.get_layer(layer_name)
@@ -156,41 +109,16 @@ def csp_darknet53_tiny_load_weights(csp_darknet53_tiny, fd):
 
     return True
 
-
-def panet_load_weights(panet, fd):
-    for i in range(78, 110):
+def bifpn_tiny_load_weights(bifpn_tiny, fd):
+    for i in range(18, 22):
         layer_name = "yolo_conv2d_%d" % i
 
-        yolo_conv2d = panet.get_layer(layer_name)
+        yolo_conv2d = bifpn_tiny.get_layer(layer_name)
         if not yolo_conv2d_load_weights(yolo_conv2d, fd):
             return False
 
     return True
 
-
-def panet_tiny_load_weights(panet_tiny, fd):
-    for i in range(15, 21):
-        layer_name = "yolo_conv2d_%d" % i
-
-        yolo_conv2d = panet_tiny.get_layer(layer_name)
-        if not yolo_conv2d_load_weights(yolo_conv2d, fd):
-            return False
-
-    return True
-
-
-def yolov4_load_weights(yolov4, fd):
-    csp_darknet53 = yolov4.get_layer("CSPDarknet53")
-
-    if not csp_darknet53_load_weights(csp_darknet53, fd):
-        return False
-
-    panet = yolov4.get_layer("PANet")
-
-    if not panet_load_weights(panet, fd):
-        return False
-
-    return True
 
 
 def yolov4_tiny_load_weignts(yolov4_tiny, fd):
@@ -199,9 +127,9 @@ def yolov4_tiny_load_weignts(yolov4_tiny, fd):
     if not csp_darknet53_tiny_load_weights(csp_darknet53_tiny, fd):
         return False
 
-    panet_tiny = yolov4_tiny.get_layer("PANetTiny")
+    bifpn_tiny = yolov4_tiny.get_layer("BiFPNTiny")
 
-    if not panet_tiny_load_weights(panet_tiny, fd):
+    if not bifpn_tiny_load_weights(bifpn_tiny, fd):
         return False
 
     return True
@@ -254,75 +182,32 @@ def yolo_conv2d_save_weights(yolo_conv2d, fd):
     conv_weights.transpose([3, 2, 0, 1]).reshape((-1,)).tofile(fd)
 
 
-def res_block_save_weights(model, fd):
-    for i in range(model.iteration):
-        _res_block = model.sequential.get_layer(index=i)
-        yolo_conv2d_save_weights(_res_block.get_layer(index=0), fd)
-        yolo_conv2d_save_weights(_res_block.get_layer(index=1), fd)
-
-
-def csp_res_net_save_weights(model, fd):
-    for i in range(3):
-        yolo_conv2d_save_weights(model.get_layer(index=i), fd)
-
-    res_block_save_weights(model.get_layer(index=3), fd)
-
-    for i in (4, 6):
-        yolo_conv2d_save_weights(model.get_layer(index=i), fd)
-
-
-def csp_darknet53_save_weights(csp_darknet53, fd):
-    yolo_conv2d_save_weights(csp_darknet53.get_layer(index=0), fd)
-
-    for i in range(1, 1 + 5):
-        csp_res_net_save_weights(csp_darknet53.get_layer(index=i), fd)
-
-    for i in range(6, 6 + 3):
-        yolo_conv2d_save_weights(csp_darknet53.get_layer(index=i), fd)
-
-    # index 9 is SPP
-
-    for i in range(10, 10 + 3):
-        yolo_conv2d_save_weights(csp_darknet53.get_layer(index=i), fd)
-
 
 def csp_darknet53_tiny_save_weights(csp_darknet53_tiny, fd):
     yolo_conv2d_save_weights(csp_darknet53_tiny.get_layer(index=0), fd)
 
-    for i in range(1, 15):
+    for i in range(1, 18):
         layer_name = "yolo_conv2d_%d" % i
 
         yolo_conv2d = csp_darknet53_tiny.get_layer(layer_name)
         yolo_conv2d_save_weights(yolo_conv2d, fd)
 
 
-def panet_save_weights(panet, fd):
-    for i in range(78, 110):
+def bifpn_tiny_save_weights(bifpn_tiny, fd):
+    for i in range(18, 22):
         layer_name = "yolo_conv2d_%d" % i
 
-        yolo_conv2d = panet.get_layer(layer_name)
+        yolo_conv2d = bifpn_tiny.get_layer(layer_name)
         yolo_conv2d_save_weights(yolo_conv2d, fd)
 
-
-def panet_tiny_save_weights(panet_tiny, fd):
-    for i in range(15, 21):
-        layer_name = "yolo_conv2d_%d" % i
-
-        yolo_conv2d = panet_tiny.get_layer(layer_name)
-        yolo_conv2d_save_weights(yolo_conv2d, fd)
-
-
-def yolov4_save_weights(yolov4, fd):
-    csp_darknet53 = yolov4.get_layer("CSPDarknet53")
-    csp_darknet53_save_weights(csp_darknet53, fd)
-
-    panet = yolov4.get_layer("PANet")
-    panet_save_weights(panet, fd)
 
 
 def yolov4_tiny_save_weignts(yolov4_tiny, fd):
     csp_darknet53_tiny = yolov4_tiny.get_layer("CSPDarknet53Tiny")
     csp_darknet53_tiny_save_weights(csp_darknet53_tiny, fd)
 
-    panet_tiny = yolov4_tiny.get_layer("PANetTiny")
-    panet_tiny_save_weights(panet_tiny, fd)
+    bifpn_tiny = yolov4_tiny.get_layer("BiFPNTiny")
+    bifpn_tiny_save_weights(bifpn_tiny, fd)
+    
+    #panet_tiny = yolov4_tiny.get_layer("PANetTiny")
+    #panet_tiny_save_weights(panet_tiny, fd)

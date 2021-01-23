@@ -94,7 +94,6 @@ class Dataset:
         @return [[image_path, [[x, y, w, h, class_id], ...]], ...]
         """
         _dataset = []
-
         with open(self.dataset_path, "r") as fd:
             txt = fd.readlines()
             if self.dataset_type == "converted_coco":
