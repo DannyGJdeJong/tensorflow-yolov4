@@ -100,7 +100,7 @@ def csp_darknet53_tiny_load_weights(csp_darknet53_tiny, fd):
     if not yolo_conv2d_load_weights(csp_darknet53_tiny.get_layer(index=0), fd):
         return False
 
-    for i in range(1, 18):
+    for i in range(1, 16):
         layer_name = "yolo_conv2d_%d" % i
 
         yolo_conv2d = csp_darknet53_tiny.get_layer(layer_name)
@@ -110,7 +110,7 @@ def csp_darknet53_tiny_load_weights(csp_darknet53_tiny, fd):
     return True
 
 def bifpn_tiny_load_weights(bifpn_tiny, fd):
-    for i in range(18, 22):
+    for i in range(16, 20):
         layer_name = "yolo_conv2d_%d" % i
 
         yolo_conv2d = bifpn_tiny.get_layer(layer_name)
@@ -186,7 +186,7 @@ def yolo_conv2d_save_weights(yolo_conv2d, fd):
 def csp_darknet53_tiny_save_weights(csp_darknet53_tiny, fd):
     yolo_conv2d_save_weights(csp_darknet53_tiny.get_layer(index=0), fd)
 
-    for i in range(1, 18):
+    for i in range(1, 16):
         layer_name = "yolo_conv2d_%d" % i
 
         yolo_conv2d = csp_darknet53_tiny.get_layer(layer_name)
@@ -194,7 +194,7 @@ def csp_darknet53_tiny_save_weights(csp_darknet53_tiny, fd):
 
 
 def bifpn_tiny_save_weights(bifpn_tiny, fd):
-    for i in range(18, 22):
+    for i in range(16, 20):
         layer_name = "yolo_conv2d_%d" % i
 
         yolo_conv2d = bifpn_tiny.get_layer(layer_name)
