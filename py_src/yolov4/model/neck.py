@@ -31,7 +31,7 @@ class BiFPNTiny(Model):
         self, num_classes, activation: str = "mish", kernel_regularizer=None
     ):
         super(BiFPNTiny, self).__init__(name="BiFPNTiny")
-        self.conv18 = YOLOConv2D(
+        self.conv16 = YOLOConv2D(
             filters=512,
             kernel_size=3,
             activation=activation,
