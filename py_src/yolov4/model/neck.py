@@ -81,7 +81,7 @@ class BiFPNTiny(Model):
         x3 = self.conv18(x2)
         pred_m = x3 #(None, 32, 32, 48)
 
-        x2 = self.maxpool19(x2)
+        x2 = self.maxpool18(x2)
 
         x2 = self.concat13_18([x2, x1])
 
