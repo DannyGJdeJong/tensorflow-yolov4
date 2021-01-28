@@ -162,8 +162,8 @@ def DIoU_NMS(candidates, threshold):
 def candidates_to_pred_bboxes(
     candidates,
     input_size,
-    iou_threshold: float = 0.3,
-    score_threshold: float = 0.25,
+    iou_threshold: float = 0.5,
+    score_threshold: float = 0.3,
 ):
     """
     @param candidates: Dim(-1, (x, y, w, h, obj_score, probabilities))

@@ -153,7 +153,20 @@ class CSPDarknet53Tiny(Model):
             activation=activation,
             kernel_regularizer=kernel_regularizer,
         )
+        self.spp = SPP()
         self.conv15 = YOLOConv2D(
+            filters=512,
+            kernel_size=3,
+            activation=activation,
+            kernel_regularizer=kernel_regularizer,
+        )
+        self.conv16 = YOLOConv2D(
+            filters=1024,
+            kernel_size=3,
+            activation=activation,
+            kernel_regularizer=kernel_regularizer,
+        )
+        self.conv17 = YOLOConv2D(
             filters=512,
             kernel_size=3,
             activation=activation,
@@ -199,12 +212,12 @@ class CSPDarknet53Tiny(Model):
 
         x1 = self.conv14(x1) #(None, 16, 16, 512)
         
-        #x1 = self.spp(x1) #(None, 16, 16, 2048)
+        x1 = self.spp(x1) #(None, 16, 16, 2048)
 
-        #x1 = self.conv15(x1) #(None, 16, 16, 512)
+        x1 = self.conv15(x1) #(None, 16, 16, 512)
 
-        #x1 = self.conv16(x1) #shape=(None, 16, 16, 1024)
+        x1 = self.conv16(x1) #shape=(None, 16, 16, 1024)
         
-        route2 = self.conv15(x1) #shape=(None, 16, 16, 512)
+        route2 = self.conv17(x1) #shape=(None, 16, 16, 512)
     
         return route1, route2 #(None, 32, 32, 256),(None, 16, 16, 512)

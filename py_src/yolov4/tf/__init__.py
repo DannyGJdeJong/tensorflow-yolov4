@@ -49,13 +49,13 @@ class YOLOv4(BaseClass):
 
         self.batch_size = 32
         self._has_weights = False
-        self.input_size = 608
+        self.input_size = 512
         self.model = None
 
     def make_model(
         self,
         activation0: str = "mish",
-        activation1: str = "leaky",
+        activation1: str = "mish",
         kernel_regularizer=tf.keras.regularizers.l2(0.0005),
     ):
         # pylint: disable=missing-function-docstring
@@ -185,8 +185,8 @@ class YOLOv4(BaseClass):
     def predict(
         self,
         frame: np.ndarray,
-        iou_threshold: float = 0.3,
-        score_threshold: float = 0.25,
+        iou_threshold: float = 0.5,
+        score_threshold: float = 0.3,
     ):
         """
         Predict one frame

@@ -31,32 +31,32 @@ class BiFPNTiny(Model):
         self, num_classes, activation: str = "mish", kernel_regularizer=None
     ):
         super(BiFPNTiny, self).__init__(name="BiFPNTiny")
-        self.conv16 = YOLOConv2D(
+        self.conv18 = YOLOConv2D(
             filters=512,
             kernel_size=3,
             activation=activation,
             kernel_regularizer=kernel_regularizer,
         )
-        self.upSampling16 = layers.UpSampling2D(interpolation="bilinear")
+        self.upSampling18 = layers.UpSampling2D(interpolation="bilinear")
 
-        self.concat13_16 = layers.Concatenate(axis=-1)
+        self.concat13_18 = layers.Concatenate(axis=-1)
 
-        self.conv17 = YOLOConv2D(
+        self.conv19 = YOLOConv2D(
             filters=256,
             kernel_size=3,
             activation=activation,
             kernel_regularizer=kernel_regularizer,
         )
-        self.concat13_17 = layers.Concatenate(axis=-1)
-        self.conv18 = YOLOConv2D(
+        self.concat13_19 = layers.Concatenate(axis=-1)
+        self.conv20 = YOLOConv2D(
             filters=3 * (num_classes + 5),
             kernel_size=1,
             activation=None,
             kernel_regularizer=kernel_regularizer,
         )
-        self.maxpool18 = layers.MaxPool2D((2, 2), strides=2, padding="same")
-        self.concat13_18 = layers.Concatenate(axis=-1)
-        self.conv19 = YOLOConv2D(
+        self.maxpool20 = layers.MaxPool2D((2, 2), strides=2, padding="same")
+        self.concat13_20 = layers.Concatenate(axis=-1)
+        self.conv21 = YOLOConv2D(
             filters=3 * (num_classes + 5),
             kernel_size=1,
             activation=None,
@@ -66,26 +66,26 @@ class BiFPNTiny(Model):
     def call(self, x):
         route1, route2 = x #(None,32,32,256),(None,16,16,512)
 
-        x1 = self.conv16(route2) #(None,16, 16, 512)
+        x1 = self.conv18(route2) #(None,16, 16, 512)
 
         #pred_l = self.conv19(x1) #(None, 16, 16, 48)
 
-        x2 = self.upSampling16(route2) #(None,32, 32, 512)
+        x2 = self.upSampling18(route2) #(None,32, 32, 512)
         
-        x2 = self.concat13_16([x2, route1]) #(None, 32, 32, 768)
+        x2 = self.concat13_18([x2, route1]) #(None, 32, 32, 768)
         
-        x2 = self.conv17(x2) #(None, 32, 32, 256)
+        x2 = self.conv19(x2) #(None, 32, 32, 256)
 
-        x2 = self.concat13_17([x2, route1]) #(None, 32, 32, 512)
+        x2 = self.concat13_19([x2, route1]) #(None, 32, 32, 512)
         
-        x3 = self.conv18(x2)
+        x3 = self.conv20(x2)
         pred_m = x3 #(None, 32, 32, 48)
 
-        x2 = self.maxpool18(x2)
+        x2 = self.maxpool20(x2)
 
-        x2 = self.concat13_18([x2, x1])
+        x2 = self.concat13_20([x2, x1])
 
-        x2 = self.conv19(x2) #(None, 16, 16, 48)
+        x2 = self.conv21(x2) #(None, 16, 16, 48)
 
         pred_l = x2
         return pred_m, pred_l #(None, 32, 32, 48), (None, 16, 16, 48)
